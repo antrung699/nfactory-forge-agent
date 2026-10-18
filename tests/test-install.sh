@@ -168,7 +168,7 @@ T=$(mktemp -d)
 for s in nfactory-forge-run.sh nfactory-forge-stop.sh nfactory-forge-wave-plan.sh \
          nfactory-forge-codex-lane.sh nfactory-forge-codex-wave.sh nfactory-forge-card.sh nfactory-forge-throttle.sh nfactory-forge-host.sh \
          nfactory-forge-deps.sh nfactory-forge-preflight.sh nfactory-forge-merge-gate.sh nfactory-forge-usage.sh nfactory-forge-pr-body.sh \
-         forge-review-file-refactor.sh forge-qa-file-bug.sh; do
+         forge-review-file-refactor.sh forge-qa-file-bug.sh nfactory-forge-devkit-mcp.sh; do
   [ -x "$T/.claude/bin/$s" ] || fail "$s was not installed, or is not executable"
 done
 rm -rf "$T"

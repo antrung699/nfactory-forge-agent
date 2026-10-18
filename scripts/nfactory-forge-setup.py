@@ -75,7 +75,7 @@ BIN = ["nfactory-forge-project-verifier.py", "nfactory-forge-skills-ready.py", "
        "nfactory-forge-deps.sh", "nfactory-forge-preflight.sh", "nfactory-forge-merge-gate.sh",
        "nfactory-forge-merge-policy.py", "nfactory-forge-approval.py", "nfactory-forge-env-check.sh", "nfactory-forge-agents-md.py",
        "nfactory-forge-settings.py", "nfactory-forge-setup.py", "nfactory-forge-usage.sh", "nfactory-forge-pr-body.sh",
-       "forge-review-file-refactor.sh", "forge-qa-file-bug.sh", "nfactory-forge-stop.sh"]
+       "forge-review-file-refactor.sh", "forge-qa-file-bug.sh", "nfactory-forge-stop.sh", "nfactory-forge-devkit-mcp.sh"]
 WORKFLOWS = ["nfactory-forge-wave.js", "ui-refine-loop.js"]
 HELPERS_CMD = "npx -y skills@latest add mattpocock/skills --skill '*' -a claude-code -y"
 

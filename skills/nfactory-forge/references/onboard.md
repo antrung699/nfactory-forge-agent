@@ -171,6 +171,11 @@ Write it atomically (temp file + rename) after every answer. A halt never loses 
    │    git or gh → halt: "Without <tool> the board can't <why>. Your answers are saved — run
    │    the command, then re-run onboard."
    ├─ Re-check (`check --text`) after every install; move on only when it says all green.
+   ├─ Dynamics CRM DevKit MCP: bash $SB/nfactory-forge-devkit-mcp.sh install — installs the
+   │    pinned `devkit` 4.44.44.44 .NET tool (checksum-verified, from the DevKit GitHub repo).
+   │    Prints its ✓ line under "Fixed for you". Exit 69 → its last stdout line is the
+   │    install command (.NET 10 SDK): run it with Bash like any `needs` item, then re-run.
+   │    Declined or failed → one ⚠️ line, leave the MCP out at step 8; never halts onboard.
    ├─ Workflow runtime: syntax-check the installed workflow (same command run.md uses):
    │      { echo '(async function(){'; sed 's/^export const meta/const meta/' \
    │        .claude/workflows/nfactory-forge-wave.js; echo '})'; } | node --check --input-type=module
@@ -370,6 +375,9 @@ Write it atomically (temp file + rename) after every answer. A halt never loses 
    │    │    --dest AGENTS.md, pointer --tail <staged tail> --force, block, check
    │    ├─ staged project verifier skill/map/scenarios/runner, if source-backed; then
    │    │    inspect the saved map and resolve the local skill for the actual host.
+   │    ├─ .mcp.json: bash $SB/nfactory-forge-devkit-mcp.sh config — adds `dynamicscrm-devkit`
+   │    │    (readonly, active pac profile), keeps other servers; skipped if step 1 left it out.
+   │    │    Exit 69 or no pac profile → one ⚠️ line with the command, not a failure.
    │    └─ docs/agents/issue-tracker.md; docs/nfactory-forge/PROJECT.md (a sub-agent drafts it from
    │       manifests + README + tree, no question; listed in the table as "PROJECT.md drafted")
    └─ Delete onboard-staged/; keep the answers file (re-runs use it).
