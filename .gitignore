@@ -1,0 +1,40 @@
+.DS_Store
+*.swp
+*.swo
+
+# build artifacts
+/dist/
+nfactory-forge-v*.zip
+
+# editor / OS noise
+.idea/
+.vscode/
+*.code-workspace
+
+# python bytecode (tests/test_status_parse.py runs in place)
+__pycache__/
+*.pyc
+
+# nfactory-forge runtime state (if anyone runs the loop *inside* this repo)
+.claude/nfactory-forge/active
+.claude/nfactory-forge/collect/
+.claude/nfactory-forge/inflight/
+.claude/nfactory-forge/migrations/
+.claude/worktrees/
+.worktrees/
+
+# QA evidence (heavy artifacts; keep summaries)
+docs/nfactory-forge/runs/**/*.png
+docs/nfactory-forge/runs/**/*.jpg
+docs/nfactory-forge/runs/**/*.jpeg
+docs/nfactory-forge/runs/**/*.webp
+docs/nfactory-forge/runs/**/*.html
+docs/nfactory-forge/runs/**/*.log
+docs/nfactory-forge/runs/**/*.patch
+docs/nfactory-forge/runs/**/*.diff
+docs/nfactory-forge/runs/**/*.zip
+docs/nfactory-forge/runs/**/*.trace
+docs/nfactory-forge/runs/**/*.trace.zip
+
+# claude plugin eval output
+evals/results/

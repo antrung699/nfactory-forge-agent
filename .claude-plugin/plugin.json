@@ -1,0 +1,23 @@
+{
+  "name": "nfactory-forge",
+  "version": "3.1.2",
+  "description": "nFactory-Forge Agent (fork of super-board 3.1.2). Autonomous GitHub Project board runner. Primary skills: nfactory-forge, forge-build, forge-qa, forge-review, forge-collect. Secondary skills: visual, git-sync, ui-refine-loop. Installed as a plugin it ships the skills only; run /nfactory-forge onboard to add the guard hooks, .claude/bin scripts and workflows (get.sh / install.sh install all of it in one go).",
+  "author": {
+    "name": "antrung699"
+  },
+  "homepage": "https://github.com/antrung699/nfactory-forge-agent",
+  "repository": "https://github.com/antrung699/nfactory-forge-agent",
+  "license": "MIT",
+  "keywords": [
+    "github-projects",
+    "kanban",
+    "autonomous",
+    "workflows",
+    "qa",
+    "code-review"
+  ],
+  "skills": "./skills/",
+  "experimental": {
+    "evals": "evals"
+  }
+}

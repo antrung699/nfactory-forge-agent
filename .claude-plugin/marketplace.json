@@ -1,0 +1,17 @@
+{
+  "name": "nfactory-forge",
+  "description": "nFactory-Forge Agent: autonomous GitHub Project board runner (fork of super-board 3.1.2).",
+  "owner": {
+    "name": "antrung699",
+    "url": "https://github.com/antrung699"
+  },
+  "plugins": [
+    {
+      "name": "nfactory-forge",
+      "source": "./",
+      "description": "Autonomous GitHub Project board runner: nfactory-forge, forge-build, forge-qa, forge-review, forge-collect, visual, git-sync, ui-refine-loop. After install, run /nfactory-forge onboard to add the guard hooks, .claude/bin scripts and workflows a plugin cannot ship.",
+      "category": "development",
+      "homepage": "https://github.com/antrung699/nfactory-forge-agent"
+    }
+  ]
+}
