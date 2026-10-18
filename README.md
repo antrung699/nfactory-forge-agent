@@ -1,29 +1,25 @@
 <div align="center">
 
-<img src="docs/assets/logo.svg" width="88" height="88" alt="nfactory-forge kanban logo">
+<img src="docs/assets/logo.svg" width="88" height="88" alt="nFactory-Forge logo">
 
-<h1>nfactory-forge</h1>
+<h1>nFactory-Forge Agent</h1>
 
-<p><strong>Add tasks, walk away, get merged PRs with proof.</strong></p>
+<p><strong>Put tasks on a GitHub board. Get tested, reviewed, merged pull requests back.</strong></p>
 
-<p>8 skills (5 you type, 3 the board runs) · 9 commands · 6 guard hooks</p>
-
-<p>
-<img alt="Version" src="https://img.shields.io/badge/version-3.1.2-1f883d?style=flat-square">
-<img alt="Host" src="https://img.shields.io/badge/Claude%20Code-skills-d97757?style=flat-square">
-<img alt="License" src="https://img.shields.io/badge/license-MIT-0969da?style=flat-square">
-</p>
-
-<p><a href="https://erictechpro.github.io/nfactory-forge/"><strong>🌐 Live site: erictechpro.github.io/nfactory-forge</strong></a></p>
-
-<p><a href="#install">Install</a> · <a href="#quick-start">Quick start</a> · <a href="#how-it-works">How it works</a> · <a href="#skills">Skills</a> · <a href="#commands">Commands</a> · <a href="#guards--hooks">Guards</a></p>
+<p>8 skills (5 you type, 3 the board runs) · runs inside Claude Code</p>
 
 </div>
 
-<p align="center"><a href="https://erictechpro.github.io/nfactory-forge/skill-map/"><img src="docs/assets/skill-map.png" alt="The nfactory-forge skill map: open the interactive version" width="100%"></a></p>
-<p align="center"><sub>The skill map. Click it for the live version: zoom, pan, open any node.</sub></p>
+## What it is
+
+nFactory-Forge turns a GitHub Project board into an automatic software team. You write a card,
+move it to **Ready**, and AI agents inside Claude Code build it, test it, review it and merge it.
+Every step leaves its proof (tests, screenshots, review notes) on the GitHub issue and pull request.
 
 ## Install
+
+You need: [Claude Code](https://claude.com/claude-code), `git`, [`gh`](https://cli.github.com) (signed in
+with `gh auth login`), `jq`, `node` and Python 3.9+. The installer checks and tells you what's missing.
 
 In your project folder:
 
@@ -31,53 +27,87 @@ In your project folder:
 curl -fsSL https://raw.githubusercontent.com/antrung699/nfactory-forge-agent/main/get.sh | bash
 ```
 
-Or as a Claude Code plugin:
+This copies the skills, scripts, workflows and safety guards into your project's `.claude/` folder.
+Run the same line again any time to update.
 
-```
-/plugin marketplace add antrung699/nfactory-forge-agent
-/plugin install nfactory-forge@nfactory-forge
-```
+## Start a new project
 
-> [!NOTE]
-> The plugin ships the skills only. Run `/nfactory-forge:nfactory-forge onboard` and its 🔍 Checks step adds the guard hooks, scripts and workflows. Needs Claude Code, `gh`, `jq`, bash 3.2+ and Python 3.9+; the installer checks.
+**1. Install** (above), inside the project folder.
 
-Optional post-run learning can delegate an already installed `calibrate` skill after
-verified selected work completes. It applies only to explicitly permitted existing
-canonical skill files; the package bundles no private skill. See
-[post-run calibration](skills/nfactory-forge/references/calibration.md).
-
-## Quick start
-
-### 1. Install
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/antrung699/nfactory-forge-agent/main/get.sh | bash
-```
-
-### 2. Onboard
+**2. Onboard** — open Claude Code in the folder and run:
 
 ```
 /nfactory-forge onboard
 ```
 
-Checks · GitHub · Board · Branch · AGENTS.md · Policies · Bug sources · Review. <kbd>Enter</kbd> takes the recommended answer.
+Onboard asks a few questions in 8 steps. Press <kbd>Enter</kbd> to take the recommended answer.
 
-### 3. Run
+| Step | What happens |
+|---|---|
+| 1 · Checks | Installs anything missing, including the Dynamics CRM DevKit MCP (see below) |
+| 2 · GitHub | Checks you're signed in and connects the repo (offers to create one if there is none) |
+| 3 · Board | Creates or connects the Project board and its columns |
+| 4 · Branch | Picks the branch pull requests merge into |
+| 5 · AGENTS.md | Writes the project rules the agents follow |
+| 6 · Policies | Who merges (you or the agents) and how database migrations run |
+| 7 · Bug sources | Optional: Sentry, PostHog and other places to find bugs |
+| 8 · Review | Shows everything, then writes it all in one go |
+
+You only onboard once per project. Running it again checks and repairs the setup.
+
+**3. Add work** — create issues on the board with a clear goal and acceptance criteria, then move
+them to **Ready**. Check your cards with:
 
 ```
-/nfactory-forge run my-app
+/nfactory-forge lint
 ```
 
-Add cards to `Ready`. The board drains on its own.
+**4. Run**:
+
+```
+/nfactory-forge run
+```
+
+The agents take every Ready card through the lanes below until the board is empty. Use
+`/nfactory-forge status` to see progress and `/nfactory-forge stop` to stop safely. Work in
+progress is kept and picks up where it left off next run.
 
 ## How it works
 
-<p align="center"><a href="https://youtu.be/aggJvNZxfKA"><img src="https://i.ytimg.com/vi/aggJvNZxfKA/maxresdefault.jpg" alt="Watch I Built a Self-Improving Software Factory by Eric Tech on YouTube" width="100%"></a></p>
-<p align="center"><a href="https://youtu.be/aggJvNZxfKA"><strong>▶ Watch on YouTube: I Built a Self-Improving Software Factory</strong></a></p>
+```mermaid
+flowchart LR
+    B[Backlog] --> R[Ready]
+    R --> BU[Building<br/>forge-build]
+    BU --> Q[QA<br/>forge-qa]
+    Q --> RV[Review<br/>forge-review]
+    RV --> D[Done<br/>merged]
+    Q -- bug found --> BU
+    RV -- needs changes --> BU
+    BU -. stuck .-> BL[Blocked<br/>needs you]
+    C[forge-collect<br/>Sentry · PostHog · issues] -. files cards .-> B
+```
+
+1. **Plan.** `/nfactory-forge run` reads the board and picks the Ready cards that can start now
+   (cards whose blockers are done). It sends them out in waves, several at a time.
+2. **Build** (`forge-build`). Each card gets its own git worktree. The agent writes a failing test
+   first, makes the smallest change that passes it, and opens a draft pull request.
+3. **QA** (`forge-qa`). Another agent runs the change in a real browser, saves screenshots and logs,
+   and checks the tests cover the change. A bug sends the card back to Build.
+4. **Review** (`forge-review`). A third agent reviews the pull request on its own, without
+   trusting the builder's summary. Problems send the card back to Build.
+5. **Merge.** The merge gate re-runs your project's checks on the latest base branch and merges
+   only the exact commit that was reviewed. The card moves to **Done**.
+6. **Blocked.** When an agent needs a decision only you can make, the card goes to **Blocked**
+   with a short question on the issue. Answer it and move the card back to Ready.
+
+Cards labelled `qa` skip Building and go straight to QA. Everything else is built first.
+
+The session where you type `/nfactory-forge run` only coordinates. It never writes product code
+itself; all the work happens in the lane agents, and all the state lives on the GitHub board.
 
 ## Skills
 
-**8 skills (5 you type, 3 the board runs).** Uses [Matt Pocock skills](https://github.com/mattpocock/skills), ponytail, impeccable and humanizer.
+**8 skills (5 you type, 3 the board runs).**
 
 <!-- skills:start -->
 **You type — 5 skills**
@@ -99,106 +129,48 @@ Add cards to `Ready`. The board drains on its own.
 | [`/forge-review`](skills/forge-review/README.md) | Reviewer lane: own hypotheses, remembers prior findings, merge gate. |
 <!-- skills:end -->
 
-Each name links to that skill's README. Adding a skill? Write its `SKILL.md` and `README.md`, add a line to `skills/families.json`, and this table updates itself.
-
 ## Commands
 
 ```
-/nfactory-forge onboard          # 8-step setup, resumes
-/nfactory-forge lint             # vague ACs?
-/nfactory-forge status           # read-only snapshot
-/nfactory-forge run <slug>       # drain the board
-/nfactory-forge stop             # stop workers
-/forge-collect [source]       # file problems to Backlog
-/ui-refine-loop <route>       # polish one page
-/visual [recap|plan|path]     # one HTML page
-/git-sync                     # commit, pull, push
+/nfactory-forge onboard        # set up this project (8 steps, resumes)
+/nfactory-forge lint           # check cards have clear acceptance criteria
+/nfactory-forge run            # work through the board
+/nfactory-forge status         # see what's happening
+/nfactory-forge stop           # stop safely
+/forge-collect [source]        # find bugs and file them as cards
+/ui-refine-loop <page>         # polish one page
+/visual                        # one HTML page: recap, plan or code map
+/git-sync                      # commit, pull, push
 ```
 
-Flags: `run --low|--high` · `run --codex[=<model>]` · `forge-collect --since 30d`
+`run --low` uses cheaper models, `run --high` uses the strongest ones.
 
-## Guards & hooks
+## Dynamics CRM DevKit MCP
 
-Run automatically once installed. Python stdlib, JSON in, JSON out.
+Onboard also sets up the [Dynamics CRM DevKit](https://github.com/phuocle/Dynamics-Crm-DevKit) MCP
+server, so the agents can read your Dataverse environment.
 
-| | |
-| --- | --- |
-| [guard-worktree-path](hooks/guard-worktree-path.py) | Blocks `git worktree add` outside `.claude/worktrees/` |
-| [guard-secrets](hooks/guard-secrets.py) | Blocks reading or piping dotenv files, SSH keys and credential files; key names via `nfactory-forge-env-check.sh` |
-| [guard-key-literals](hooks/guard-key-literals.py) | Blocks a live-looking API key written into a file; flags one already there |
-| [guard-delete-outside](hooks/guard-delete-outside.py) | Blocks `rm`, `find -delete` and `git clean` aimed outside the project, `~` or `/` |
-| [guard-protected-push](hooks/guard-protected-push.py) | Opt-in (`onboard` asks, or `install.sh --protect-main`): blocks direct and force pushes to main/master/base |
-| [README sync](scripts/nfactory-forge-readme-sync.py) | Regenerates the skill table; pre-commit and PostToolUse hooks keep it fresh |
-| [cleanup-wt](hooks/cleanup-wt.py) | Removes merged worktrees and branches after each merge and at session start, with a recovery file |
-| [merge gate](scripts/nfactory-forge-merge-gate.sh) | Merges only after the current base plus your non-empty project `verify_commands` pass (missing checks halt setup), pinned to the reviewed commit; applies `merge_policy` and runs allowed DB migrations |
+- Step 1 installs the `devkit` .NET tool (needs .NET 10; onboard offers the install command).
+- Step 8 adds `dynamicscrm-devkit` to the project's `.mcp.json`, signed in with your active
+  `pac` profile (`pac auth create` if you have none).
+- It starts in **readonly** mode. Change `readonly` to `all` in `.mcp.json` when you want the agents
+  to change Dataverse.
 
-## Models
+You can also run it by hand: `.claude/bin/nfactory-forge-devkit-mcp.sh install` then `… config`.
 
-A cheap router grades each card easy, medium or hard first; the run flag picks the model for each grade. With `--codex`, every lane runs on Codex GPT models instead of Claude.
+## Safety guards
 
-| Command | Router | Easy card | Medium card | Hard card |
-| --- | --- | --- | --- | --- |
-| `/nfactory-forge run` | Haiku 4.5 | Sonnet 5.5 | Opus 5.5 | session model |
-| `/nfactory-forge run --low` | Haiku 4.5 | Haiku 4.5 | Sonnet 5.5 | Opus 5.5 |
-| `/nfactory-forge run --high` | Sonnet 5.5 | Opus 5.5 | Opus 5.5 | Opus 5.5 |
-| `/nfactory-forge run --codex` | gpt-6-luna | gpt-6.1-sol | gpt-6.1-sol | gpt-6-astra |
-| `/nfactory-forge run --codex --low` | gpt-6-luna | gpt-6-luna | gpt-6.1-sol | gpt-6.1-sol |
-| `/nfactory-forge run --codex --high` | gpt-6-luna | gpt-6-astra | gpt-6-astra | gpt-6-astra |
+These run automatically once installed:
 
-`/nfactory-forge run --codex=<model>` pins one model for every card and skips the router.
+| Guard | Stops |
+|---|---|
+| guard-secrets | Reading `.env` files, SSH keys and other secrets |
+| guard-key-literals | API keys being written into code |
+| guard-delete-outside | Deleting files outside the project |
+| guard-worktree-path | Git worktrees outside `.claude/worktrees/` |
+| guard-protected-push | Direct or force pushes to `main` (optional, onboard asks) |
+| cleanup-wt | Not a blocker: removes worktrees after their work is merged |
 
-Run inside Codex? plain `/nfactory-forge run` switches to the Codex ladder by itself. Codex has no
-`/nfactory-forge` command: it finds skills in `.agents/skills/` (symlinks followed), so link
-`.claude/skills/nfactory-forge` there and type `$nfactory-forge run`.
+## License
 
-## Writing standard
-
-Commits, tickets, PR bodies and comments all follow [one writing standard](https://erictechpro.github.io/nfactory-forge/writing-standard/), in the pack and in every project it is installed into.
-
-<details>
-<summary><strong>Upgrading from 2.x</strong></summary>
-
-1. Re-run the install line.
-2. Run `/nfactory-forge onboard`; step 1 upgrades for you and keeps a backup.
-3. Try `board-migrate --dry-run` on a copy of your board first.
-
-[Full notes](RELEASE-NOTES.md#upgrading-from-2x)
-
-</details>
-
-## Credits
-
-MIT © Eric Tech ([LICENSE](LICENSE)). Built on [obra/superpowers](https://github.com/obra/superpowers), [mattpocock/skills](https://github.com/mattpocock/skills), [BuilderIO/skills](https://github.com/BuilderIO/skills) and [tt-a1i/archify](https://github.com/tt-a1i/archify).
-
----
-
-<p align="center">
-<a href="https://erictechpro.github.io/nfactory-forge/">Live site</a> ·
-<a href="https://erictechpro.github.io/nfactory-forge/skill-map/">Skill map</a> ·
-<a href="https://erictechpro.github.io/nfactory-forge/writing-standard/">Writing standard</a> ·
-<a href="https://erictechpro.github.io/nfactory-forge/onboarding/">Setup simulator</a> ·
-<a href="https://erictechpro.github.io/nfactory-forge/impeccable/">Impeccable map</a> ·
-<a href="https://erictechpro.github.io/nfactory-forge/pstack/">pstack map</a> ·
-<a href="RELEASE-NOTES.md">Release notes</a> ·
-<a href="RELEASING.md">Release checks</a> ·
-<a href="https://youtu.be/nX_bGyIOFM4">YouTube walkthrough</a>
-</p>
-<p align="center"><sub>Made by Eric Tech</sub></p>
-
-### Worker skill availability
-
-Setup and dispatch resolve real, nonempty `SKILL.md` files for the actual
-Claude or Codex host. Missing required skills halt before claims or workers;
-lockfiles and arbitrary plugin caches do not count. The shared registry in
-`scripts/nfactory-forge-skills-ready.py` owns lane dependencies, overrides and the
-two declared ponytail fallbacks. Setup's full helper union may be red while a
-selected card is runnable. Read-only checks never install; explicit onboard
-repair rechecks files after installation.
-
-The CLI accepts `--home <fixture-home>` and `--catalog <active-skills.json>`.
-Launchers accept the same inventory through `NFACTORY_FORGE_SKILLS_HOME` and
-`NFACTORY_FORGE_SKILLS_CATALOG`; neither changes the actual host. Catalog shape:
-`{"host":"codex","skills":[{"name":"vendor:skill","path":"/exact/SKILL.md",
-"enabled":true,"scope":"project","project_root":"/exact/project"}]}`.
-User entries use `scope:"user"`. Restart explicitly after repairing missing
-skills; readiness certifies availability, not their content or external tools.
+MIT, see [LICENSE](LICENSE).
